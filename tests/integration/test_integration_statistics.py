@@ -38,14 +38,15 @@ def test_win_count():
     }
 
     backtest = long_call(DATA, filters)
-    print(results(backtest))
-    assert results(backtest)[0] == {
-        "Initial Balance": 10000,
-        "Ending Balance": 103300.0,
-        "Total Profit": 93300.0,
-        "Total Win Count": 1,
-        "Total Win Percent": 0.5,
-        "Total Loss Count": 1,
-        "Total Loss Percent": 0.5,
-        "Total Trades": 2,
+    print(results(backtest, filters))
+    assert results(backtest, filters) == {
+        "Profit": 9330.0,
+        "Win Percent": 0.5,
+        "Loss Percent": 0.5,
+        "Trades": 2,
+        "start_date": datetime(2018, 1, 1),
+        "end_date": datetime(2018, 2, 28),
+        "entry_dte": 31,
+        "leg1_delta": 0.30,
+        "exit_dte": 7,
     }

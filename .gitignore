@@ -36,3 +36,6 @@ MANIFEST
 /strategies/results/
 /strategies/private/
 
+*.swp
+*.swo
+*.pkl

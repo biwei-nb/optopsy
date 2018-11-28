@@ -27,7 +27,7 @@ from .checks import (
 
 default_entry_filters = {
     "expr_type": None,
-    "contract_size": 10,
+    "contract_size": 1,
     "entry_dte": (27, 30, 31),
     "exit_dte": None,
 }
@@ -52,9 +52,7 @@ def _process_legs(data, legs, fil, check_func, mode):
             .pipe(simulate, data, f[2], f[4], mode)
         )
     else:
-        raise ValueError(
-            "Invalid filter values provided, please check the filters and try again."
-        )
+        return None
 
 
 def _filter_checks(filter, func=None):
@@ -101,6 +99,14 @@ def short_put_spread(data, filters, mode="market"):
     return _process_legs(data, legs, filters, put_spread_checks, mode)
 
 
+def _iron_condor(data, legs, filters, mode):
+    spread = _process_legs(data, legs, filters, iron_condor_checks, mode)
+
+    if spread is None:
+        return None
+    return spread.pipe(iron_condor_spread_check)
+
+
 def long_iron_condor(data, filters, mode="market"):
     legs = [
         (OptionType.PUT, 1),
@@ -108,9 +114,7 @@ def long_iron_condor(data, filters, mode="market"):
         (OptionType.CALL, -1),
         (OptionType.CALL, 1),
     ]
-    return _process_legs(data, legs, filters, iron_condor_checks, mode).pipe(
-        iron_condor_spread_check
-    )
+    return _iron_condor(data, legs, filters, mode)
 
 
 def short_iron_condor(data, filters, mode="market"):
@@ -120,6 +124,4 @@ def short_iron_condor(data, filters, mode="market"):
         (OptionType.CALL, 1),
         (OptionType.CALL, -1),
     ]
-    return _process_legs(data, legs, filters, iron_condor_checks, mode).pipe(
-        iron_condor_spread_check
-    )
+    return _iron_condor(data, legs, filters, mode)

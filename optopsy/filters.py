@@ -1,4 +1,4 @@
-#     Optopsy - Python Backtesting library for options trading strategies
+
 #     Copyright (C) 2018  Michael Chu
 
 #     This program is free software: you can redistribute it and/or modify
@@ -88,14 +88,14 @@ def expr_type(data, value, _idx):
     For example:
     value = ["SPX", "SPXW"]
     """
-    if isinstance(value, list):
+    value = [value] if isinstance(value, str) else value
+
+    if value is None and not isinstance(value, list):
+        return data
+    else:
         mask = np.in1d(data["underlying_symbol"].values, value)
         result = data[mask]
         return data if result.empty else result
-    elif value is None:
-        return data
-    else:
-        raise ValueError("expr_type value must be of dict type")
 
 
 def contract_size(data, value, _idx):
@@ -193,7 +193,8 @@ def entry_spread_price(data, value, _idx):
     For example, it would set a min max of $0.10 to $0.20 and find only spreads with prices
     within that range.
     """
-
+    # TODO: Make this delta independant, may need to self join on legs to get every
+    # possible combination of strike prices and filter on spread prices.
     return (
         data.groupby(["trade_num"])["entry_opt_price"]
         .sum()
@@ -217,10 +218,7 @@ def entry_spread_delta(data, value, _idx):
 
 def entry_spread_yield(data, value, _idx):
     """
-    Yield Percentage is (option entry price / stockprice).
-
-    For example it would search options that have yldpct between
-    and including .05 to .10 (5 and 10 percent).
+    Yield Percentage is (option max profit / option max loss).
     """
     pass
 

@@ -1,8 +1,7 @@
 #     Optopsy - Python Backtesting library for options trading strategies
 #     Copyright (C) 2018  Michael Chu
 
-#     This program is free software: you can redistribute it and/or modify
-#     it under the terms of the GNU General Public License as published by
+#     This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by
 #     the Free Software Foundation, either version 3 of the License, or
 #     (at your option) any later version.
 
@@ -15,9 +14,10 @@
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from functools import reduce
+from itertools import product
 from .filters import filter_data
 from .option_queries import opt_type
-from .statistics import calc_entry_px, calc_exit_px, assign_trade_num, calc_pnl
+from .statistics import results, calc_entry_px, calc_exit_px, assign_trade_num, calc_pnl
 import pandas as pd
 import optopsy.filters as fil
 
@@ -113,5 +113,25 @@ def simulate(spreads, data, exit_filters, exit_spread_filters, mode):
     return res[output_format]
 
 
-def optimize(func, params):
-    pass
+def _gen_scenarios(params):
+    keys = params.keys()
+    vals = params.values()
+
+    for v in product(*vals):
+        yield dict(zip(keys, v))
+
+
+def optimize(data, func, **params):
+    # iterate over each param and gather the items
+    scenarios = list(_gen_scenarios(params))
+    res = []
+    tot = len(scenarios)
+
+    for i, s in enumerate(scenarios):
+        print(f"processing scenario {i} of {tot} scenarios")
+        r = func(data, s)
+
+        if r is not None:
+            res.append(func(data, s).pipe(results, s))
+
+    return pd.DataFrame.from_dict(res).sort_values(by=["Win Percent"], ascending=False)

@@ -15,6 +15,7 @@
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import numpy as np
+from collections import OrderedDict
 
 
 def calc_ending_balance(data, init_balance):
@@ -36,9 +37,9 @@ def _calc_with_groups(data):
     losses = df[df > 0].count()
     return {
         "win_cnt": wins,
-        "win_pct": round(wins / df.size, 2),
+        "win_pct": float("%.2f" % round(wins / df.size, 2)),
         "loss_cnt": losses,
-        "loss_pct": round(losses / df.size, 2),
+        "loss_pct": float("%.2f" % round(losses / df.size, 2)),
     }
 
 
@@ -90,18 +91,13 @@ def calc_pnl(data):
     return data.round(2)
 
 
-def results(data, init_balance=10000):
-    return (
-        {
-            "Initial Balance": init_balance,
-            "Ending Balance": calc_ending_balance(data, init_balance),
-            "Total Profit": calc_total_profit(data),
-            "Total Win Count": _calc_with_groups(data)["win_cnt"],
-            "Total Win Percent": _calc_with_groups(data)["win_pct"],
-            "Total Loss Count": _calc_with_groups(data)["loss_cnt"],
-            "Total Loss Percent": _calc_with_groups(data)["loss_pct"],
-            "Total Trades": calc_total_trades(data),
-        },
-        data,
-    )
+def results(data, f):
+    r = {
+        "Profit": calc_total_profit(data),
+        "Win Percent": _calc_with_groups(data)["win_pct"],
+        "Loss Percent": _calc_with_groups(data)["loss_pct"],
+        "Trades": calc_total_trades(data),
+    }
+
+    return {**r, **f}
 
