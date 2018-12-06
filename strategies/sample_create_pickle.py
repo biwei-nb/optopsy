@@ -6,8 +6,9 @@ import optopsy as op
 import os
 import pandas as pd
 
+
 def store_data(file_name):
-    
+
     SPX_FILE_STRUCT = (
         ("underlying_symbol", 0),
         ("underlying_price", 1),
@@ -46,4 +47,3 @@ if __name__ == "__main__":
     # calling results function from the results returned from run_strategy()
     r = store_data("SPX_2014_2018")
     print(r.head())
-

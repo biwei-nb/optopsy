@@ -1,6 +1,5 @@
 from optopsy.option_strategies import long_call, short_call, long_put, short_put
 from optopsy.data import get
-from optopsy.statistics import results
 from datetime import datetime
 import os
 import pytest
@@ -27,26 +26,3 @@ hod_struct = (
 
 DATA = get(TEST_FILE_PATH_FULL, hod_struct, prompt=False)
 
-
-def test_win_count():
-    filters = {
-        "start_date": datetime(2018, 1, 1),
-        "end_date": datetime(2018, 2, 28),
-        "entry_dte": 31,
-        "leg1_delta": 0.30,
-        "exit_dte": 7,
-    }
-
-    backtest = long_call(DATA, filters)
-    print(results(backtest, filters))
-    assert results(backtest, filters) == {
-        "Profit": 9330.0,
-        "Win Percent": 0.5,
-        "Loss Percent": 0.5,
-        "Trades": 2,
-        "start_date": datetime(2018, 1, 1),
-        "end_date": datetime(2018, 2, 28),
-        "entry_dte": 31,
-        "leg1_delta": 0.30,
-        "exit_dte": 7,
-    }

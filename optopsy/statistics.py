@@ -15,7 +15,7 @@
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import numpy as np
-from collections import OrderedDict
+from pandas.core.base import PandasObject
 
 
 def calc_ending_balance(data, init_balance):
@@ -31,73 +31,5 @@ def calc_total_profit(data):
     return data["cost"].sum().round(2) * -1
 
 
-def _calc_with_groups(data):
-    df = data.groupby("trade_num")["cost"].sum()
-    wins = df[df <= 0].count()
-    losses = df[df > 0].count()
-    return {
-        "win_cnt": wins,
-        "win_pct": float("%.2f" % round(wins / df.size, 2)),
-        "loss_cnt": losses,
-        "loss_pct": float("%.2f" % round(losses / df.size, 2)),
-    }
-
-
-def _calc_opt_px(data, action):
-    ask = data[f"ask_{action}"] * data["ratio"]
-    bid = data[f"bid_{action}"] * data["ratio"]
-
-    if action == "entry":
-        return np.where(data["ratio"] > 0, ask, bid)
-    elif action == "exit":
-        return np.where(data["ratio"] > 0, bid * -1, ask * -1)
-
-
-def _calc_midpint_opt_px(data, action):
-    bid_ask = [f"bid_{action}", f"ask_{action}"]
-    if action == "entry":
-        return data[bid_ask].mean(axis=1) * data["ratio"]
-    elif action == "exit":
-        return data[bid_ask].mean(axis=1) * data["ratio"] * -1
-
-
-def _assign_opt_px(data, mode, action):
-    if mode == "midpoint":
-        data[f"{action}_opt_price"] = _calc_midpint_opt_px(data, action)
-    elif mode == "market":
-        data[f"{action}_opt_price"] = _calc_opt_px(data, action)
-    return data
-
-
-def assign_trade_num(data, groupby):
-    data["trade_num"] = data.groupby(groupby).ngroup()
-    data.set_index("trade_num", inplace=True)
-    return data
-
-
-def calc_entry_px(data, mode="midpoint"):
-    return _assign_opt_px(data, mode, "entry")
-
-
-def calc_exit_px(data, mode="midpoint"):
-    return _assign_opt_px(data, mode, "exit")
-
-
-def calc_pnl(data):
-    # calculate the p/l for the trades
-    data["entry_price"] = data["entry_opt_price"] * data["contracts"] * 100
-    data["exit_price"] = data["exit_opt_price"] * data["contracts"] * 100
-    data["cost"] = data["exit_price"] + data["entry_price"]
-    return data.round(2)
-
-
-def results(data, f):
-    r = {
-        "Profit": calc_total_profit(data),
-        "Win Percent": _calc_with_groups(data)["win_pct"],
-        "Loss Percent": _calc_with_groups(data)["loss_pct"],
-        "Trades": calc_total_trades(data),
-    }
-
-    return {**r, **f}
-
+def extend_pandas():
+    pass
