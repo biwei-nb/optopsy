@@ -18,18 +18,65 @@ import numpy as np
 from pandas.core.base import PandasObject
 
 
-def calc_ending_balance(data, init_balance):
+def to_returns(data, init_balance=100000):
     window = np.insert(data["cost"].values, 0, init_balance, axis=0)
-    return np.subtract.accumulate(window)[-1]
+    return np.subtract.accumulate(window)
 
 
-def calc_total_trades(data):
+def to_monthly_returns(data):
+    pass
+
+
+def calc_annual_returns(data):
+    pass
+
+
+def calc_annual_sharpe_ratio(data):
+    pass
+
+
+def calc_max_drawdown_pct(data):
+    pass
+
+
+def draw_down_days(data):
+    pass
+
+
+def calc_win_rate(data):
+    pass
+
+
+def avg_days_in_trade(data):
+    pass
+
+
+def total_trades(data):
     return data.index.max() + 1
 
 
-def calc_total_profit(data):
+def total_profit(data):
     return data["cost"].sum().round(2) * -1
 
 
-def extend_pandas():
+def avg_profit_per_trade(data):
     pass
+
+
+def avg_cost_per_trade(data):
+    pass
+
+
+def extend_pandas():
+    PandasObject.to_returns = to_returns
+    PandasObject.to_monthly_returns = to_monthly_returns
+    PandasObject.calc_annual_returns = calc_annual_returns
+    PandasObject.calc_annual_sharpe_ratio = calc_annual_sharpe_ratio
+    PandasObject.calc_max_drawdown_pct = calc_max_drawdown_pct
+    PandasObject.draw_down_days = draw_down_days
+    PandasObject.calc_win_rate = calc_win_rate
+    PandasObject.avg_days_in_trade = avg_days_in_trade
+    PandasObject.total_trades = total_trades
+    PandasObject.total_profit = total_profit
+    PandasObject.avg_profit_per_trade = avg_profit_per_trade
+    PandasObject.avg_cost_per_trade = avg_cost_per_trade
